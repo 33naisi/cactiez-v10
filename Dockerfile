@@ -2,8 +2,6 @@ FROM centos:6.10
 
 COPY cactiez-x86_64.tgz /tmp/
 
-COPY Dockerfile /root/
-
 RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup \
  && curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo \
  && yum -y update \
@@ -15,18 +13,11 @@ RUN cd /tmp/ \
  && /bin/cp -rf /tmp/var/www/html/* /var/www/html \
  && /bin/cp -rf /tmp/usr/* /usr \
  && /bin/cp -rf /tmp/etc/* /etc \
- && chmod -R 777 /var/www/html/log/ \
- && chmod -R 7755 /var/www/html/rra/ \
- && chmod -R 755 /var/www/html/scripts/ \
- && chmod -R 755 /usr/local/spine/bin/ \
- && chmod -R 755 /usr/local/rrdtool/bin/ \
- && chown -R apache:apache /var/www/html/ \
- && echo '*/10 * * * * /usr/sbin/ntpdate ntp.aliyun.com && /sbin/clock -w' > /tmp/crontab2.tmp \
  && echo '*/5 * * * * php /var/www/html/poller.php > /dev/null 2>&1' >> /tmp/crontab2.tmp \
  && crontab /tmp/crontab2.tmp \
  && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
- && echo -e '/usr/sbin/ntpdate ntp.aliyun.com && /sbin/clock -w\n/etc/init.d/mysqld start\n/etc/init.d/snmpd start\n/etc/init.d/crond start\n/usr/sbin/httpd -D FOREGROUND' > /usr/bin/cacti-start \
- && chmod +x /usr/bin/cacti-start \
+ && echo -e '#/bin/bash\nset -x\nsetchmod -R 777 /var/www/html/log/\nchmod -R 7755 /var/www/html/rra/\nchmod -R 755 /var/www/html/scripts/\nchmod -R 755 /usr/local/spine/bin/\nchmod -R 755 /usr/local/rrdtool/bin/\nchown -R apache:apache /var/www/html/\nchown -R mysql:mysql /var/lib/mysql/\n/etc/init.d/mysqld start\n/etc/init.d/snmpd start\n/etc/init.d/crond start\nhttpd -DFOREGROUND' > /usr/local/bin/cacti-start \
+ && chmod +x /usr/local/bin/cacti-start \
  && rm -rf /tmp/*
 	
 RUN service mysqld start \
@@ -36,4 +27,4 @@ RUN service mysqld start \
 	
 EXPOSE 80
 
-ENTRYPOINT ["/bin/bash", "/usr/bin/cacti-start"]
+ENTRYPOINT ["/bin/bash", "cacti-start"]
