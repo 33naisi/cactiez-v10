@@ -27,4 +27,4 @@ RUN service mysqld start \
 	
 EXPOSE 80
 
-ENTRYPOINT ["/bin/bash", "cacti-start"]
+ENTRYPOINT ["/bin/bash", "/usr/local/bin/cacti-start"]
