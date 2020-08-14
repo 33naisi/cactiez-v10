@@ -24,6 +24,8 @@ RUN service mysqld start \
  && /usr/bin/mysqladmin --user=root create cacti \
  && mysql -e "GRANT ALL ON cacti.* TO cactiuser@localhost IDENTIFIED BY 'cactiuser'" \
  && mysql cacti < /var/www/html/cactiez.sql
+ 
+VOLUME /var/www/html /var/lib/mysql
 	
 EXPOSE 80
 
